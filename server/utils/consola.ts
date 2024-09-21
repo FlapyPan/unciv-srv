@@ -1,0 +1,1 @@
+export { consola } from 'consola'

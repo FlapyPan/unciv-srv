@@ -1,0 +1,23 @@
+{
+  "name": "unciv-srv",
+  "version": "1.0.0-alpha",
+  "description": "简单的 Unciv 服务器",
+  "author": "FlapyPan",
+  "license": "MPL-2.0",
+  "repository": "https://github.com/FlapyPan/unciv-srv",
+  "scripts": {
+    "build": "nitro build",
+    "dev": "nitro --host dev",
+    "prepare": "nitro prepare",
+    "preview": "node .output/server/index.mjs",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "nitropack": "latest",
+    "prettier": "latest"
+  },
+  "dependencies": {
+    "bytes": "^3.1.2",
+    "mongodb": "^6.9.0"
+  }
+}
