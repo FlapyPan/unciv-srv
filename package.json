@@ -9,7 +9,7 @@
     "build": "nitro build",
     "dev": "nitro --host dev",
     "prepare": "nitro prepare",
-    "preview": "node .output/server/index.mjs",
+    "start": "bun run --bun .output/server/index.mjs",
     "format": "prettier --write ."
   },
   "devDependencies": {

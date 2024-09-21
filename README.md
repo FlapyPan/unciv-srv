@@ -23,5 +23,5 @@ UncivSrc 读取环境变量作为配置，可通过 `.env` 文件进行配置。
 ```sh
 bun run dev
 # 或
-bun run build && bun run preview
+bun run build && bun run start
 ```
