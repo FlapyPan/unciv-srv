@@ -1,6 +1,6 @@
 import { format } from 'bytes'
 
-export default defineEventHandler((event) => {
+export default eventHandler((event) => {
   const cpuUsage = process.cpuUsage()
   const { rss, heapTotal, heapUsed, external } = process.memoryUsage()
   return {
