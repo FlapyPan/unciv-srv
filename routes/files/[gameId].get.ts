@@ -1,5 +1,5 @@
 export default eventHandler(async (event) => {
-  const gameId = getRouterParam(event, `gameId`)
+  const gameId = getGameId(event)
   const storage = useStorage(`files`)
   const file = await storage.getItem(`files:${gameId}`)
   if (!file) {
