@@ -143,6 +143,11 @@ app.use(router.routes())
 app.use(router.allowedMethods())
 
 if (import.meta.main) {
+  Deno.addSignalListener('SIGINT', () => {
+    log.info('Shutting down...')
+    db.close()
+    Deno.exit()
+  })
   app.listen({ port: PORT })
   log.info(`Data store path: ${DATA_PATH}`)
   log.info(`Listening on port: ${PORT}`)
