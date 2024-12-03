@@ -1,0 +1,12 @@
+.vscode
+.idea
+
+node_modules
+dist
+.data
+.cache
+.output
+.env
+.local
+
+data
