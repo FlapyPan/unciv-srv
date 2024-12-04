@@ -3,9 +3,9 @@
   "main": "main.ts",
   "license": "MPL-2.0",
   "tasks": {
-    "dev": "deno run --watch --allow-all main.ts",
-    "start": "deno run --allow-all main.ts",
-    "test": "deno test --allow-all",
+    "dev": "deno run --watch --allow-all --env-file=.env main.ts",
+    "start": "deno run --allow-all --env-file=.env main.ts",
+    "test": "deno test --allow-all --env-file=.env",
     "lint": "deno lint",
     "fmt": "deno fmt"
   },
