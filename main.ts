@@ -1,4 +1,3 @@
-import { Database } from '@db/sqlite'
 import { Application, Router } from '@oak/oak'
 import { type levellike, Logger } from '@libs/logger'
 
@@ -26,13 +25,6 @@ try {
 } catch {
   Deno.mkdirSync(DATA_PATH, { recursive: true })
 }
-const dbPath = `${DATA_PATH}/db.sqlite`
-const db = new Database(dbPath)
-db.exec(`
-CREATE TABLE IF NOT EXISTS files (
-  id TEXT PRIMARY KEY,
-  data TEXT NOT NULL
-)`)
 
 const router = new Router()
 
@@ -68,33 +60,40 @@ router.all('/isalive', (ctx) => {
   ctx.response.body = 'true'
 })
 
-router.get('/files/:gameId', (ctx) => {
+router.get('/files/:gameId', async (ctx) => {
   const gameId = ctx.params.gameId
-  const result = db.prepare('SELECT data FROM files WHERE id = ?').get<{ data: string }>(gameId)
-  if (!result?.data) {
+  const filePath = `${DATA_PATH}/${gameId}`
+  try {
+    const file = await Deno.readFile(filePath)
+    ctx.response.body = file
+  } catch {
     ctx.response.status = 404
-    ctx.response.body = { message: 'Not found' }
-    return
+    ctx.response.body = { message: 'File not found' }
   }
-  ctx.response.body = result.data
 })
 
-router.delete('/files/:gameId', (ctx) => {
+router.delete('/files/:gameId', async (ctx) => {
   const gameId = ctx.params.gameId
-  db.prepare('DELETE FROM files WHERE id = ?').run(gameId)
-  ctx.response.body = gameId
+  const filePath = `${DATA_PATH}/${gameId}`
+  try {
+    await Deno.remove(filePath)
+  } finally {
+    ctx.response.body = { message: 'File deleted successfully' }
+  }
 })
 
 router.all('/files/:gameId', async (ctx) => {
   const gameId = ctx.params.gameId
-  const body = await ctx.request.body.text()
-  if (!body) {
+  const body = await ctx.request.body.arrayBuffer()
+  if (!body.byteLength || body.byteLength > MAX_BODY_SIZE) {
     ctx.response.status = 400
     ctx.response.body = { message: 'Invalid body' }
     return
   }
-  db.prepare('INSERT OR REPLACE INTO files (id, data) VALUES (?, ?)').run(gameId, body)
-  ctx.response.body = body
+  const filePath = `${DATA_PATH}/${gameId}`
+  const content = new Uint8Array(body)
+  await Deno.writeFile(filePath, content, { mode: 0o600 })
+  ctx.response.body = content
 })
 
 export const app = new Application()
@@ -140,23 +139,12 @@ app.use((ctx, next) => {
   return next()
 })
 
-app.use(async (ctx, next) => {
-  const contentLength = parseInt(ctx.request.headers.get('content-length') || '0')
-  if (contentLength > MAX_BODY_SIZE) {
-    ctx.response.status = 413
-    ctx.response.body = { message: 'Payload too large' }
-    return
-  }
-  await next()
-})
-
 app.use(router.routes())
 app.use(router.allowedMethods())
 
 if (import.meta.main) {
   Deno.addSignalListener('SIGINT', () => {
     log.info('Shutting down...')
-    db.close()
     Deno.exit()
   })
   app.listen({ port: PORT })

@@ -1,55 +1,30 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@db/sqlite@0": "0.12.0",
-    "jsr:@denosaurs/plug@1": "1.0.6",
     "jsr:@libs/logger@3": "3.1.3",
     "jsr:@oak/commons@1": "1.0.0",
     "jsr:@oak/oak@17": "17.1.3",
-    "jsr:@std/assert@0.217": "0.217.0",
-    "jsr:@std/assert@0.221": "0.221.0",
     "jsr:@std/assert@1": "1.0.8",
     "jsr:@std/bytes@1": "1.0.4",
     "jsr:@std/bytes@^1.0.2": "1.0.4",
     "jsr:@std/crypto@1": "1.0.3",
-    "jsr:@std/encoding@0.221": "0.221.0",
     "jsr:@std/encoding@1": "1.0.5",
     "jsr:@std/encoding@^1.0.5": "1.0.5",
-    "jsr:@std/fmt@0.221": "0.221.0",
-    "jsr:@std/fs@0.221": "0.221.0",
     "jsr:@std/http@1": "1.0.11",
     "jsr:@std/internal@^1.0.5": "1.0.5",
     "jsr:@std/io@0.224": "0.224.9",
     "jsr:@std/media-types@1": "1.1.0",
-    "jsr:@std/path@0.217": "0.217.0",
-    "jsr:@std/path@0.221": "0.221.0",
     "jsr:@std/path@1": "1.0.8",
     "npm:path-to-regexp@6.2.1": "6.2.1"
   },
   "jsr": {
-    "@db/sqlite@0.12.0": {
-      "integrity": "dd1ef7f621ad50fc1e073a1c3609c4470bd51edc0994139c5bf9851de7a6d85f",
-      "dependencies": [
-        "jsr:@denosaurs/plug",
-        "jsr:@std/path@0.217"
-      ]
-    },
-    "@denosaurs/plug@1.0.6": {
-      "integrity": "6cf5b9daba7799837b9ffbe89f3450510f588fafef8115ddab1ff0be9cb7c1a7",
-      "dependencies": [
-        "jsr:@std/encoding@0.221",
-        "jsr:@std/fmt",
-        "jsr:@std/fs",
-        "jsr:@std/path@0.221"
-      ]
-    },
     "@libs/logger@3.1.3": {
       "integrity": "30177fb47e1c81a9fa3bab5795f799283938e67bbeaf480f8cf3bb3605a9fb86"
     },
     "@oak/commons@1.0.0": {
       "integrity": "49805b55603c3627a9d6235c0655aa2b6222d3036b3a13ff0380c16368f607ac",
       "dependencies": [
-        "jsr:@std/assert@1",
+        "jsr:@std/assert",
         "jsr:@std/bytes@1",
         "jsr:@std/crypto",
         "jsr:@std/encoding@1",
@@ -61,21 +36,15 @@
       "integrity": "d89296c22db91681dd3a2a1e1fd14e258d0d5a9654de55637aee5b661c159f33",
       "dependencies": [
         "jsr:@oak/commons",
-        "jsr:@std/assert@1",
+        "jsr:@std/assert",
         "jsr:@std/bytes@1",
         "jsr:@std/crypto",
         "jsr:@std/http",
         "jsr:@std/io",
         "jsr:@std/media-types",
-        "jsr:@std/path@1",
+        "jsr:@std/path",
         "npm:path-to-regexp"
       ]
-    },
-    "@std/assert@0.217.0": {
-      "integrity": "c98e279362ca6982d5285c3b89517b757c1e3477ee9f14eb2fdf80a45aaa9642"
-    },
-    "@std/assert@0.221.0": {
-      "integrity": "a5f1aa6e7909dbea271754fd4ab3f4e687aeff4873b4cef9a320af813adb489a"
     },
     "@std/assert@1.0.8": {
       "integrity": "ebe0bd7eb488ee39686f77003992f389a06c3da1bbd8022184804852b2fa641b",
@@ -89,21 +58,8 @@
     "@std/crypto@1.0.3": {
       "integrity": "a2a32f51ddef632d299e3879cd027c630dcd4d1d9a5285d6e6788072f4e51e7f"
     },
-    "@std/encoding@0.221.0": {
-      "integrity": "d1dd76ef0dc5d14088411e6dc1dede53bf8308c95d1537df1214c97137208e45"
-    },
     "@std/encoding@1.0.5": {
       "integrity": "ecf363d4fc25bd85bd915ff6733a7e79b67e0e7806334af15f4645c569fefc04"
-    },
-    "@std/fmt@0.221.0": {
-      "integrity": "379fed69bdd9731110f26b9085aeb740606b20428ce6af31ef6bd45ef8efa62a"
-    },
-    "@std/fs@0.221.0": {
-      "integrity": "028044450299de8ed5a716ade4e6d524399f035513b85913794f4e81f07da286",
-      "dependencies": [
-        "jsr:@std/assert@0.221",
-        "jsr:@std/path@0.221"
-      ]
     },
     "@std/http@1.0.11": {
       "integrity": "f1928e69e7dcf1664e22d153934cb866bf31e1bbe4bc59f8ac1b4d0e98cb7558",
@@ -123,18 +79,6 @@
     "@std/media-types@1.1.0": {
       "integrity": "c9d093f0c05c3512932b330e3cc1fe1d627b301db33a4c2c2185c02471d6eaa4"
     },
-    "@std/path@0.217.0": {
-      "integrity": "1217cc25534bca9a2f672d7fe7c6f356e4027df400c0e85c0ef3e4343bc67d11",
-      "dependencies": [
-        "jsr:@std/assert@0.217"
-      ]
-    },
-    "@std/path@0.221.0": {
-      "integrity": "0a36f6b17314ef653a3a1649740cc8db51b25a133ecfe838f20b79a56ebe0095",
-      "dependencies": [
-        "jsr:@std/assert@0.221"
-      ]
-    },
     "@std/path@1.0.8": {
       "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
     }
@@ -146,7 +90,6 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@db/sqlite@0",
       "jsr:@libs/logger@3",
       "jsr:@oak/oak@17",
       "jsr:@std/assert@1"
