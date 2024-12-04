@@ -29,19 +29,27 @@ try {
 const router = new Router()
 
 router.get('/', (ctx) => {
-  const memoryInfo = Deno.systemMemoryInfo()
+  ctx.response.body = `<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unciv Srv</title>
+  </head>
+  <body>
+    <p>Unciv Srv 正在运行中</p>
+    <p><a href="/status" target="_blank">服务器状态</a></p>
+    <p><a href="https://github.com/FlapyPan/unciv-srv" target="_blank">项目地址</a></p>
+  </body>
+</html>`
+})
+
+router.get('/status', (ctx) => {
   const loadAvg = Deno.loadavg()
   const memoryUsage = Deno.memoryUsage()
+  const version = Deno.version
   ctx.response.body = {
-    systemMemoryInfo: {
-      total: `${(memoryInfo.total / 1024 / 1024).toFixed(2)} MB`,
-      free: `${(memoryInfo.free / 1024 / 1024).toFixed(2)} MB`,
-      available: `${(memoryInfo.available / 1024 / 1024).toFixed(2)} MB`,
-      buffers: `${(memoryInfo.buffers / 1024 / 1024).toFixed(2)} MB`,
-      cached: `${(memoryInfo.cached / 1024 / 1024).toFixed(2)} MB`,
-      swapTotal: `${(memoryInfo.swapTotal / 1024 / 1024).toFixed(2)} MB`,
-      swapFree: `${(memoryInfo.swapFree / 1024 / 1024).toFixed(2)} MB`,
-    },
+    version,
     loadAverages: {
       one: loadAvg[0].toFixed(2),
       five: loadAvg[1].toFixed(2),
