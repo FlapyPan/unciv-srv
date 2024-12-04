@@ -3,6 +3,7 @@ import { Application, Router } from '@oak/oak'
 import { type levellike, Logger } from '@libs/logger'
 
 const GAME_ID_REGEX = /^[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}(_Preview)?$/
+const MAX_BODY_SIZE = 5 * 1024 * 1024
 
 const PORT = +(Deno.env.get('PORT') || 11451)
 const LOG_LEVEL = ['disabled', 'error', 'warn', 'info', 'log', 'debug'].includes(
@@ -137,6 +138,16 @@ app.use((ctx, next) => {
     return
   }
   return next()
+})
+
+app.use(async (ctx, next) => {
+  const contentLength = parseInt(ctx.request.headers.get('content-length') || '0')
+  if (contentLength > MAX_BODY_SIZE) {
+    ctx.response.status = 413
+    ctx.response.body = { message: 'Payload too large' }
+    return
+  }
+  await next()
 })
 
 app.use(router.routes())
