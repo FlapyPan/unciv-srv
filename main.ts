@@ -1,5 +1,6 @@
 import { Application, Router } from '@oak/oak'
 import { type levellike, Logger } from '@libs/logger'
+import { decodeBase64 } from '@std/encoding/base64'
 
 const GAME_ID_REGEX = /^[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}(_Preview)?$/
 const MAX_BODY_SIZE = 5 * 1024 * 1024
@@ -26,42 +27,90 @@ try {
   Deno.mkdirSync(DATA_PATH, { recursive: true })
 }
 
-const router = new Router()
-
-router.get('/', (ctx) => {
-  ctx.response.body = `<!DOCTYPE html>
+const indexPrefix = `<!DOCTYPE html>
 <html lang="zh">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Unciv Srv</title>
+    <style>
+      tr td {
+        padding: 6px;
+      }
+    </style>
   </head>
   <body>
-    <p>Unciv Srv 正在运行中</p>
-    <p><a href="/status" target="_blank">服务器状态</a></p>
-    <p><a href="https://github.com/FlapyPan/unciv-srv" target="_blank">项目地址</a></p>
+  <h2>Unciv Srv 服务器状态</h2>`
+const indexAppend = `
+  <p><a href="https://github.com/FlapyPan/unciv-srv" target="_blank">项目地址</a></p>
   </body>
 </html>`
-})
 
-router.get('/status', (ctx) => {
-  const loadAvg = Deno.loadavg()
-  const memoryUsage = Deno.memoryUsage()
-  const version = Deno.version
-  ctx.response.body = {
-    version,
-    loadAverages: {
-      one: loadAvg[0].toFixed(2),
-      five: loadAvg[1].toFixed(2),
-      fifteen: loadAvg[2].toFixed(2),
-    },
-    memoryUsage: {
-      external: `${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`,
-      rss: `${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
-      heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
-      heapUsed: `${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
-    },
+let indexCache = `${indexPrefix}${indexAppend}`
+let latestGamePreview: string | undefined
+
+const getFileCount = async () => {
+  let count = 0
+  for await (const dirEntry of Deno.readDir(DATA_PATH)) {
+    if (dirEntry.isFile && dirEntry.name.endsWith('_Preview')) {
+      count += 1
+    }
   }
+  return count
+}
+
+const decodeFile = async (gameId: string | undefined) => {
+  if (!gameId) return null
+  try {
+    const file = await Deno.readTextFile(`${DATA_PATH}/${gameId}`)
+    const stream = new Blob([decodeBase64(file)]).stream().pipeThrough(new DecompressionStream('gzip'))
+    const response = new Response(stream)
+    return await response.json()
+  } catch (err) {
+    log.error(err)
+    return null
+  }
+}
+
+const flushStatus = async () => {
+  const latestGame = await decodeFile(latestGamePreview)
+  indexCache = `${indexPrefix}
+    <table border="1" cellpadding="0" cellspacing="0">
+      <tbody>
+        <tr>
+          <td>存档数量</td>
+          <td colspan="2">${await getFileCount()}</td>
+        </tr>
+        <tr>
+          <td rowspan="4">
+            最新存档
+            <br>
+            ${new Date(latestGame?.currentTurnStartTime).toLocaleString()}
+          </td>
+          <td>游戏回合</td>
+          <td>${latestGame?.turns ?? 0}/${latestGame?.gameParameters?.maxTurns ?? 0}</td>
+        </tr>
+        <tr>
+          <td>基本规则集</td>
+          <td>${latestGame?.gameParameters?.baseRuleset ?? '无'}</td>
+        </tr>
+        <tr>
+          <td>游戏难度</td>
+          <td>${latestGame?.difficulty ?? '无'}</td>
+        </tr>
+        <tr>
+          <td>胜利方式</td>
+          <td>${latestGame?.gameParameters?.victoryTypes?.join('<br>') ?? '无'}</td>
+        </tr>
+      </tbody>
+    </table>
+  ${indexAppend}`
+}
+
+const router = new Router()
+
+router.get('/', (ctx) => {
+  ctx.response.body = indexCache
 })
 
 router.all('/isalive', (ctx) => {
@@ -100,6 +149,9 @@ router.all('/files/:gameId', async (ctx) => {
   }
   const filePath = `${DATA_PATH}/${gameId}`
   const content = new Uint8Array(body)
+  if (gameId.endsWith('_Preview')) {
+    latestGamePreview = gameId
+  }
   await Deno.writeFile(filePath, content, { mode: 0o600 })
   ctx.response.body = content
 })
@@ -151,8 +203,10 @@ app.use(router.routes())
 app.use(router.allowedMethods())
 
 if (import.meta.main) {
+  const flushStatusInterval = setInterval(flushStatus, 5000)
   Deno.addSignalListener('SIGINT', () => {
     log.info('Shutting down...')
+    clearInterval(flushStatusInterval)
     Deno.exit()
   })
   app.listen({ port: PORT })

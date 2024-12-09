@@ -92,7 +92,8 @@
     "dependencies": [
       "jsr:@libs/logger@3",
       "jsr:@oak/oak@17",
-      "jsr:@std/assert@1"
+      "jsr:@std/assert@1",
+      "jsr:@std/encoding@1"
     ]
   }
 }
