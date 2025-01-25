@@ -129,16 +129,6 @@ router.get('/files/:gameId', async (ctx) => {
   }
 })
 
-router.delete('/files/:gameId', async (ctx) => {
-  const gameId = ctx.params.gameId
-  const filePath = `${DATA_PATH}/${gameId}`
-  try {
-    await Deno.remove(filePath)
-  } finally {
-    ctx.response.body = { message: 'File deleted successfully' }
-  }
-})
-
 router.all('/files/:gameId', async (ctx) => {
   const gameId = ctx.params.gameId
   const body = await ctx.request.body.arrayBuffer()
