@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id       String @id @db.Char(36)
+  password String
+  games    Game[]
+}
+
+model Game {
+  id        String   @id @db.Char(36)
+  creator   Player   @relation(fields: [creatorId], references: [id])
+  creatorId String   @db.Char(36)
+  file      Json?    @db.Json
+  preview   Json?    @db.Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum LogOp {
+  READ
+  SAVE
+}
+
+model Log {
+  id        String   @id @default(uuid()) @db.Char(36)
+  playerId  String   @db.Char(36)
+  gameId    String   @db.Char(36)
+  ip        String?
+  ua        String?
+  op        LogOp
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
